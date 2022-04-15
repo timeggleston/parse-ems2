@@ -100,6 +100,11 @@ for path in files:
     invalidpackets = 0
     for idx, start in enumerate(starts):
         print("...Processing flight " + str(idx))
+        try:
+            packetformat.parse(packets[start+1])
+        except IndexError:
+            print("...Index error")
+            break
         flightdate = datetime.strftime(datetime.utcfromtimestamp(packetformat.parse(packets[start+1]).localtime), "%y/%m/%d %H:%M:%S")
         print("...Flight date " + flightdate)
         isrealflight = 0
