@@ -85,26 +85,37 @@ for path in files:
     # get all flight starts from file (may have more than one flight). 
     # flights are separated by gaps of more than 30 seconds in the timestamps
     print("Getting flights in file")
-    starts = [0]
-    prevdt = (packetformat.parse(packets[1]).localtime)-1
-    currdt = packetformat.parse(packets[1]).localtime
-    for idx, packet in enumerate(packets):
-        if (ispacketvalid(packet)):
-            currdt = packetformat.parse(packet).localtime
-            delta = currdt-prevdt
-            if (delta > 30):
-                starts.append(idx)
-            prevdt = currdt
+    try:
+        starts = [0]
+        prevdt = (packetformat.parse(packets[1]).localtime)-1
+        currdt = packetformat.parse(packets[1]).localtime
+        for idx, packet in enumerate(packets):
+            if (ispacketvalid(packet)):
+                currdt = packetformat.parse(packet).localtime
+                delta = currdt-prevdt
+                if (delta > 30):
+                    starts.append(idx)
+                prevdt = currdt
+    except IndexError:
+        print("Index error")
+        continue
+    except StreamError:
+        print("Stream error")
+        continue
 
     # for each flight create a file
     invalidpackets = 0
     for idx, start in enumerate(starts):
+        invalidpackets = 0
         print("...Processing flight " + str(idx))
         try:
             packetformat.parse(packets[start+1])
         except IndexError:
             print("...Index error")
             break
+        except StreamError:
+            print("...Stream error")
+            continue
         flightdate = datetime.strftime(datetime.utcfromtimestamp(packetformat.parse(packets[start+1]).localtime), "%y/%m/%d %H:%M:%S")
         print("...Flight date " + flightdate)
         isrealflight = 0
