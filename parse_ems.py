@@ -112,7 +112,7 @@ for path in files:
             packetformat.parse(packets[start+1])
         except IndexError:
             print("...Index error")
-            break
+            continue
         except StreamError:
             print("...Stream error")
             continue
